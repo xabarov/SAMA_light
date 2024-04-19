@@ -1,10 +1,9 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QSlider
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 
-from utils.settings_handler import AppSettings
 from ui.signals_and_slots import SliderSplitsConnection
+from utils.settings_handler import AppSettings
 
 part_colors = ('#FD5B03',
                '#92F22A',

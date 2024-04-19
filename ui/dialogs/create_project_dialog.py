@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from ui.custom_widgets.edit_with_button import EditWithButton
 from utils.settings_handler import AppSettings
 
+
 class CreateProjectDialog(QWidget):
     def __init__(self, parent, width=480, height=200, on_ok_clicked=None,
                  theme='dark_blue.xml'):
@@ -14,7 +15,7 @@ class CreateProjectDialog(QWidget):
         super().__init__(parent)
         self.settings = AppSettings()
         self.lang = self.settings.read_lang()
-        
+
         self.setWindowTitle("Создание нового проекта" if self.lang == 'RU' else 'Create new project')
         self.setWindowFlag(Qt.Tool)
 
@@ -31,7 +32,8 @@ class CreateProjectDialog(QWidget):
         self.project_name_edit_with_button = EditWithButton(None, theme=theme,
                                                             file_type='json',
                                                             dialog_text=placeholder,
-                                                            placeholder=placeholder, is_dir=False, is_existing_file_only=False)
+                                                            placeholder=placeholder, is_dir=False,
+                                                            is_existing_file_only=False)
 
         # Buttons layout:
         btnLayout = QHBoxLayout()

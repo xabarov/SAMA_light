@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import ujson
 from PIL import Image
-from PySide6 import QtCore
+from PySide2 import QtCore
 from shapely import Polygon
 import shutil
 from ui.signals_and_slots import LoadPercentConnection, ErrorConnection, InfoConnection
@@ -13,6 +13,7 @@ from utils import help_functions as hf
 from utils.blur_image import blur_image_by_mask, get_mask_from_yolo_txt
 from utils.datasets_converter.yolo_converter import create_yaml
 from utils import config
+from utils.dataset_preprocessing.splitter import train_test_val_splitter
 
 
 class Exporter(QtCore.QThread):
@@ -162,6 +163,19 @@ class Exporter(QtCore.QThread):
         3: Val
         4: Test
         """
+
+        if self.variant_idx == 0:
+            train_names, val_names, test_names = train_test_val_splitter(self.data["path_to_images"], self.splits[0],
+                                                                         self.splits[1],
+                                                                         self.splits[2], sim_method='random',
+                                                                         percent_hook=self.emit_percent)
+            return {"train": train_names, "val": val_names, "test": test_names}
+        if self.variant_idx == 1:
+            train_names, val_names = train_test_val_splitter(self.data["path_to_images"], self.splits[0],
+                                                             self.splits[1], sim_method='random',
+                                                             percent_hook=self.emit_percent)
+
+            return {"train": train_names, "val": val_names}
         if self.variant_idx == 2:
             train_names = [im for im in os.listdir(self.data["path_to_images"]) if hf.is_im_path(im)]
 
@@ -433,6 +447,7 @@ class Exporter(QtCore.QThread):
                 if is_blur:
                     blur_txt_name = os.path.join(blur_dir, txt_yolo_name)
                     blur_f = open(blur_txt_name, 'w')
+
 
                 with open(os.path.join(labels_dir, split_folder, txt_yolo_name), 'w') as f:
                     for shape in image["shapes"]:

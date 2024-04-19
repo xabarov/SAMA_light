@@ -2,7 +2,7 @@ import os
 import shutil
 
 from PIL import Image
-from PySide6 import QtCore
+from PySide2 import QtCore
 
 from ui.signals_and_slots import LoadPercentConnection, ErrorConnection, InfoConnection
 from utils import help_functions as hf

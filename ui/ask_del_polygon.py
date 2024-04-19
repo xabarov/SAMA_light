@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QLabel, QCheckBox, QWidget, QGroupBox, QFormLayout, QComboBox, QSpinBox, QVBoxLayout, \
-    QHBoxLayout, QPushButton, QDoubleSpinBox
-from PyQt5.QtCore import Qt
 import numpy as np
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QLabel, QWidget, QComboBox, QVBoxLayout, \
+    QPushButton
 
 
 class AskDelWindow(QWidget):

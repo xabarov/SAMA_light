@@ -10,19 +10,11 @@ import yaml
 from PIL import Image
 from PyQt5 import QtCore
 from PyQt5.QtGui import QPolygonF
+from rasterio import features
 from shapely import Polygon, unary_union
 
-from utils import ml_config
 from utils import config
 from utils import coords_calc
-from rasterio import features
-
-
-def save_mask_as_image(mask, save_name):
-    height, width = mask.shape
-    im = np.zeros((width, height))
-    im[mask] = 255
-    cv2.imwrite(save_name, im)
 
 
 def is_im_path(im_path, suffixes=['jpg', 'tiff', 'png', 'jpeg', 'tif']):
@@ -105,12 +97,25 @@ def convert_item_polygon_to_point_mass(pol):
     return points
 
 
+def calc_label_pos(point_mass):
+    p = Polygon(point_mass)
+    c = p.boundary.coords[1]
+    return [int(c[0]), int(c[1])]
+
+
 def calc_rows_cols(size):
     rows = min(1, math.ceil(math.sqrt(size)))
     cols = int(size / rows)
     assert rows * cols == size
 
     return rows, cols
+
+
+def save_mask_as_image(mask, save_name):
+    height, width = mask.shape
+    im = np.zeros((width, height))
+    im[mask] = 255
+    cv2.imwrite(save_name, im)
 
 
 def handle_temp_folder(cwd):
@@ -131,7 +136,6 @@ def create_unique_image_name(image_name):
         new_name += splitted_name[i]
 
     return f'{new_name} {datetime.datetime.now().microsecond}.{splitted_name[-1]}'
-
 
 
 
@@ -224,17 +228,6 @@ def clear_temp_folder(cwd=None):
             shutil.rmtree(temp_folder)
         except:
             print("Can't remove temp folder")
-
-
-def handle_temp_folder(cwd):
-    if not cwd:
-        cwd = os.getcwd()
-
-    temp_folder = os.path.join(cwd, 'temp')
-    if not os.path.exists(temp_folder):
-        os.makedirs(temp_folder)
-
-    return temp_folder
 
 
 def match_modifiers(shortcut_modifiers, pressed_modifiers):
@@ -473,14 +466,6 @@ def create_random_color(alpha):
     return rgba
 
 
-def create_unique_image_name(image_name):
-    splitted_name = image_name.split('.')
-    new_name = ""
-    for i in range(len(splitted_name) - 1):
-        new_name += splitted_name[i]
-
-    return f'{new_name} {datetime.datetime.now().microsecond}.{splitted_name[-1]}'
-
 
 def calc_ellips_point_coords(ellipse_rect, angle):
     tl = ellipse_rect.topLeft()
@@ -624,22 +609,7 @@ def calc_area_by_points(points, lrm):
     return pol.area * lrm * lrm
 
 
-def filter_results_by_areas(det_results, areas, stat):
-    det_results_filtered = []
-    for i, res in enumerate(det_results):
 
-        cls_eng = ml_config.CLASSES_ENG[int(res.cls)]
-        cls_dic = ml_config.CLASSES_RU[int(res.cls)]
-
-        if cls_eng in stat:
-            area = areas[i]
-            if area < 0.9 * stat[cls_eng][0] or area > 1.1 * stat[cls_eng][1]:
-                print(
-                    f"\t\tплощадь {cls_dic} вне наблюдаемых границ +/- 10 %. Этот объект отфильтрован.")
-                continue
-            det_results_filtered.append(res)
-
-    return det_results_filtered
 
 
 if __name__ == '__main__':

@@ -92,13 +92,3 @@ MIN_POLYGON_MOVE_DISTANCE = 5
 DENSITY_SCALE = 50
 MIN_DENSITY_VALUE = 0.5
 MAX_DENSITY_VALUE = 7
-
-PATH_TO_GROUNDING_DINO_CONFIG = 'gd/GroundingDINO/groundingdino/config/GroundingDINO_SwinB.py'  # 'gd\GroundingDINO\groundingdino\config\GroundingDINO_SwinT_OGC.py'
-PATH_TO_GROUNDING_DINO_CHECKPOINT = 'gd/groundingdino_swinb_cogcoor.pth'  # 'gd\groundingdino_swint_ogc.pth'
-
-
-PATH_TO_SENTENCE_TRANSFORMER = "sentence-transformers_all-distilroberta-v1"
-PATH_TO_IMAGES_TRANSFORMER = "models--openai--clip-vit-large-patch14"
-
-DOMEN_NAME = 'http://127.0.0.1:8000'
-

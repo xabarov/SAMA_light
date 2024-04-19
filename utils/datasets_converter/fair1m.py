@@ -1,11 +1,13 @@
-from xml.dom import minidom
-import cv2
-from collections import namedtuple
 import os
 import shutil
+from collections import namedtuple
+from xml.dom import minidom
+
+import cv2
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
+
 from yolo_converter import create_yaml
 
 Label = namedtuple('Label', ['name', 'points'])

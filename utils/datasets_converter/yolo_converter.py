@@ -1,6 +1,6 @@
 import os
 import shutil
-from utils.help_functions_light import convert_image_name_to_png_name, is_im_path
+from utils.help_functions import convert_image_name_to_png_name, is_im_path
 
 
 def create_yaml(yaml_short_name, save_folder, label_names, dataset_name='Dataset', use_test=None):

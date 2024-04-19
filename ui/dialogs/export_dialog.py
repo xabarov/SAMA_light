@@ -171,6 +171,6 @@ if __name__ == '__main__':
     apply_stylesheet(app, theme='dark_blue.xml')
 
     labels = ['F-16', 'F-35', 'C-130', 'C-17']
-    dialog = ExportDialog(label_names=labels, on_ok_clicked=on_ok, theme='dark_blue.xml')
+    dialog = ExportDialog('cat.jpg',label_names=labels, on_ok_clicked=on_ok)
     dialog.show()
     sys.exit(app.exec_())

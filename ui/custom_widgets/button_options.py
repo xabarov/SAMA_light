@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QFrame, Q
 from PyQt5.QtWidgets import QApplication
 
 from ui.signals_and_slots import InfoConnection
-from utils.help_functions_light import calc_rows_cols
+from utils.help_functions import calc_rows_cols
 from utils.settings_handler import AppSettings
 
 

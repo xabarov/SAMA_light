@@ -401,4 +401,3 @@ if __name__ == "__main__":
     # Получаем список географических координат углов изображения.
     # Поддерживаемые форматы .map, .kml, .dat
     img_name = 'F:\python\\ai_annotator\projects\geotiff\\byron.tif'
-    print(get_geo_extent(img_name))

@@ -7,8 +7,8 @@ import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QMovie, QIcon, QKeySequence, QColor, QPainter
 from PyQt5.QtPrintSupport import QPrintDialog, QPrinter
-from PyQt5.QtWidgets import QAction, QFileDialog, QMessageBox, QMenu, QToolBar, QToolButton, QLabel, \
-    QColorDialog, QProgressBar, QApplication
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QMenu, QToolBar, QToolButton, QLabel, \
+    QColorDialog, QProgressBar, QApplication, QAction
 from qt_material import apply_stylesheet
 
 from ui.ask_del_polygon import AskDelWindow
@@ -30,12 +30,14 @@ from ui.signals_and_slots import ImagesPanelCountConnection, LabelsPanelCountCon
 from ui.splash_screen import MovieSplashScreen
 from ui.view import GraphicsView
 from utils import config
-from utils import help_functions_light as hf
+from utils import help_functions as hf
 from utils.importer import Importer
 from utils.project import ProjectHandler
 from utils.settings_handler import AppSettings
 from utils.settings_handler import shortcuts as shortcuts_init
 from utils.states import DrawState, WindowState, ViewState
+from ui.balance_table_widget import BalanceTable
+
 
 basedir = os.path.dirname(__file__)
 
@@ -364,6 +366,10 @@ class MainWindow(QtWidgets.QMainWindow):
             "Загрузить данные о ЛРМ" if self.lang == 'RU' else "Load linear ground res. data", self,
             enabled=False, triggered=self.load_lrm_data_pressed)
 
+        self.balanceAct = QAction("Информация о датасете" if self.lang == 'RU' else "Dataset info",
+                                  self,
+                                  enabled=False, triggered=self.on_dataset_balance_clicked)
+
         self.ruler_act = QAction(
             "Линейка" if self.lang == 'RU' else "Ruler", self,
             enabled=False, triggered=self.ruler_pressed, checkable=True)
@@ -422,6 +428,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.datasetMenu.addMenu(self.annotatorImportMenu)
         self.datasetMenu.addAction(self.exportAnnAct)
         self.datasetMenu.addAction(self.load_lrm_data_act)
+        self.datasetMenu.addAction(self.balanceAct)
         #
         self.settingsMenu = QMenu("Настройки" if self.lang == 'RU' else "Settings", self)
         self.settingsMenu.addAction(self.settingsAct)
@@ -1334,6 +1341,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.load_lrm_data_act.setIcon(QIcon(self.icon_folder + "/json.png"))
         self.ruler_act.setIcon(QIcon(self.icon_folder + "/ruler3.png"))
+        self.balanceAct.setIcon(QIcon(self.icon_folder + "/bar-chart.png"))
 
     def toggle_act(self, is_active):
 
@@ -1362,6 +1370,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.exportAnnAct.setEnabled(is_active)
         self.cls_combo.setEnabled(is_active)
         self.load_lrm_data_act.setEnabled(is_active)
+
+        self.balanceAct.setEnabled(is_active)
 
     def open_image(self, image_name):
 
@@ -1750,7 +1760,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # if 'light' in theme:
         #     primary_color = "#000000"
 
-        density = hf.density_slider_to_value(self.settings.read_density())
+        density = hf.density_slider_to_value(float(self.settings.read_density()))
 
         extra = {'density_scale': density,
                  # 'font_size': '14px',
@@ -2255,6 +2265,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.project_data.set_image_last_user(self.tek_image_name, self.settings.read_username())
         self.images_list_widget.set_status(status=new_status)
         self.reset_image_panel_progress_bar()
+
+    def on_dataset_balance_clicked(self):
+        """
+        Вывод инфо о балансе датасета
+        """
+        project_data = self.project_data.get_data()
+        self.balance_table = BalanceTable(project_data=project_data)
+        self.balance_table.show()
 
 
 if __name__ == '__main__':

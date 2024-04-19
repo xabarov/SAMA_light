@@ -1,5 +1,5 @@
-from PySide6.QtCore import Signal
-import PySide6.QtCore as Ps2Core
+from PySide2.QtCore import Signal
+import PySide2.QtCore as Ps2Core
 
 
 class PolygonPressedConnection(Ps2Core.QObject):

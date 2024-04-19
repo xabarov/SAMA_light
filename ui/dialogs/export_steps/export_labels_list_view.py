@@ -7,14 +7,14 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, \
 
 from ui.custom_widgets.styled_widgets import StyledComboBox
 
-LastStateRole = Qt.UserRole
+LastStateRole = 0
 
 
 class CustomItem(QTableWidgetItem):
     def __init__(self, value, is_checked=True):
         super(QTableWidgetItem, self).__init__(value)
         if is_checked:
-            self.setCheckState(Qt.Checked)
+            self.setCheckState(Qt.CheckState.Checked)
             self.setData(LastStateRole, self.checkState())
 
 

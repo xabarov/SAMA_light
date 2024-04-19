@@ -1,15 +1,17 @@
+import os
+from collections import namedtuple
+
 import cv2
 import numpy as np
-from collections import namedtuple
-import os
 import rasterio
-from rasterio import features
 import shapely
-from shapely.geometry import Point, Polygon
 from PIL import Image
-from utils import help_functions_light as hf
-from skimage.measure._find_contours import find_contours
+from rasterio import features
+from shapely.geometry import Polygon
 
+from utils import help_functions as hf
+
+# from skimage.measure._find_contours import find_contours
 # from skimage.draw import line, polygon, ellipse
 
 SegResult = namedtuple('SegResult', ['seg', 'cls', 'img_filename', 'prob'])
@@ -257,7 +259,7 @@ def segmentation_to_points(mm_seg_predicitons, cls_num, simplify_factor=0.1):
             x_mass = xy[0].tolist()
             y_mass = xy[1].tolist()
             for x, y in zip(x_mass, y_mass):
-                points.append([x, y ])
+                points.append([x, y])
             results.append(points)
         except:
             pass
@@ -506,13 +508,13 @@ def mask_to_polygons_layer(mask, method='cv2', is_clear=True, min_size=80):
             if len(coords) > 2:
                 shapes.append(Polygon(coords))
 
-    elif method == 'skimage':
-        contours = find_contours(mask)
-        for contour in contours:
-            contour = np.flip(contour, axis=1)
-
-            if len(contour) > 2:
-                shapes.append(Polygon(contour))
+    # elif method == 'skimage':
+    #     contours = find_contours(mask)
+    #     for contour in contours:
+    #         contour = np.flip(contour, axis=1)
+    #
+    #         if len(contour) > 2:
+    #             shapes.append(Polygon(contour))
     else:
         print('Unknown method for create masks.')
 
@@ -536,17 +538,18 @@ if __name__ == '__main__':
     mask_path = "F:\\git_test\\33dep_dataset\\nuclear_power_stations\\mmseg\\ann_dir\\train\\france_belleville_1.png"
 
     labels = ["reactor_sq", "reactor", "engine_room", "pipe", "turbine", "switchgear", "pump", "cooltower",
-              "ct_vent_circle", "cl_vent_sq", "ct_active", "discharge", "ISFSI", "tank", "sea", "parking", 'splash_border']
+              "ct_vent_circle", "cl_vent_sq", "ct_active", "discharge", "ISFSI", "tank", "sea", "parking",
+              'splash_border']
     labels_colors = {"discharge": [255, 0, 164, 120], "ISFSI": [255, 170, 127, 58], "reactor_sq": [170, 0, 255, 58],
                      "reactor": [100, 10, 127, 120], "engine_room": [155, 0, 0, 58], "pipe": [155, 255, 220, 58],
                      "turbine": [255, 170, 0, 120], "switchgear": [255, 255, 0, 58], "pump": [85, 255, 0, 58],
                      "cooltower": [85, 0, 0, 120], "ct_vent_circle": [85, 85, 127, 58], "cl_vent_sq": [13, 45, 85, 120],
                      "ct_active": [178, 155, 191, 120], "tank": [110, 85, 155, 120], "diesel": [255, 85, 0, 120],
                      "sea": [100, 54, 0, 58], "parking": [255, 85, 255, 58], "waste_water_cil": [170, 0, 3, 50],
-                     'splash_border':[200,200,0,15]}
+                     'splash_border': [200, 200, 0, 15]}
 
     pallete = {}
     for i, lbl in enumerate(labels):
-        pallete[i+1] = labels_colors[lbl][:-1]
+        pallete[i + 1] = labels_colors[lbl][:-1]
 
     show_mask(mask_path, pallete)

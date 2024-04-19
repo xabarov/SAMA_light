@@ -1,18 +1,12 @@
-import datetime
 import os
 
-import cv2
-import numpy as np
 import ujson
-from PIL import Image
 from PyQt5.QtWidgets import QWidget
-from shapely import Polygon
-from utils.exporter import Exporter
 
 import utils.config as config
-import utils.help_functions_light as hf
+import utils.help_functions as hf
 from ui.signals_and_slots import LoadPercentConnection, InfoConnection, ProjectSaveLoadConn
-from utils.blur_image import blur_image_by_mask, get_mask_from_yolo_txt
+from utils.exporter import Exporter
 
 
 def create_blank_image():

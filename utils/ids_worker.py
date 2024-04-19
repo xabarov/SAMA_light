@@ -1,4 +1,4 @@
-from PySide6 import QtCore
+from PySide2 import QtCore
 from ui.signals_and_slots import LoadIdProgress
 
 

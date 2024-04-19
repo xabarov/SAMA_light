@@ -6,8 +6,8 @@ from random import shuffle
 import cv2
 from PIL import Image
 
-from utils.help_functions_light import is_im_path, convert_image_name_to_png_name
-from utils.help_functions_light import split_into_fragments, calc_parts
+from utils.help_functions import is_im_path
+from utils.help_functions import split_into_fragments, calc_parts
 
 Image.MAX_IMAGE_PIXELS = 933120000
 
@@ -160,6 +160,46 @@ def split_yolo_dataset(dataset_folder, splitted_dataset_folder, part_size=1280):
 
 
 
+def train_test_val_splitter(images_path, train=80.0, val=20.0, test=None, sim_method='random',
+                            percent_hook=None):
+    """
+    Сортирует имена изображений на 3 (2) части - Train/Val/Test. Если Test = None, то Train/Val
+    sim_method - способ определения близости
+        names - по именам
+        clip - по эмбеддингам
+    """
+
+    if not test:
+        "Split in 2 groups - train/val"
+        assert math.fabs(train + val - 100) < 1
+
+        if sim_method == "random":
+            images = [im for im in os.listdir(images_path) if is_im_path(im)]
+            shuffle(images)
+            train_idx_max = int(len(images) * train / 100.0)
+            train_names, val_names = images[:train_idx_max], images[train_idx_max:]
+
+            return train_names, val_names
+
+        else:
+            print(f"Wrong similarity method {sim_method}")
+    else:
+        "Split in 3 groups - train/val/test"
+        assert math.fabs(train + val + test - 100) < 1
+
+        if sim_method == "random":
+            imgs = [im for im in os.listdir(images_path) if is_im_path(im)]
+            shuffle(imgs)
+            train_idx = int(len(imgs) * train / 100.0)
+            val_idx = int(len(imgs) * (train + val) / 100.0)
+            train_names, val_names, test_names = imgs[:train_idx], imgs[train_idx:val_idx], imgs[val_idx:]
+
+            return train_names, val_names, test_names
+
+        elif sim_method == "images":
+            pass
+        else:
+            print(f"Wrong similarity method {sim_method}")
 
 if __name__ == '__main__':
     # image_path = "F:\python\datasets\\airplanes_FAIR1M\images\\train\\4640.tif"

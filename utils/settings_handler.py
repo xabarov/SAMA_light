@@ -5,7 +5,6 @@ from PyQt5.QtCore import QSettings, QPoint, QSize
 from PyQt5.QtGui import QFont
 
 from utils import config
-from utils.config import DOMEN_NAME
 
 shortcuts = {'change_polygon_label': {'appearance': 'Ctrl+E', 'modifier': ['Ctrl'], 'name_eng': 'Change polygon label',
                                       'name_ru': 'Изменить имя метки полигона', 'shortcut_key_eng': 84,
@@ -74,7 +73,7 @@ class AppSettings:
         self.qt_settings = QSettings(config.QT_SETTINGS_COMPANY, app_name)
 
     def read_clear_sam_size(self):
-        return self.qt_settings.value("sam/clear_sam_size", 80)
+        return int(self.qt_settings.value("sam/clear_sam_size", 80))
 
     def write_clear_sam_size(self, size):
         self.qt_settings.setValue("sam/clear_sam_size", size)
@@ -151,12 +150,6 @@ class AppSettings:
     def read_theme(self):
         return self.qt_settings.value("main/theme", 'dark_blue.xml')
 
-    def read_server_name(self):
-        return self.qt_settings.value("main/server", DOMEN_NAME)
-
-    def write_server_name(self, server_name):
-        self.qt_settings.setValue("main/server", server_name)
-
     def get_icon_folder(self):
         theme_str = self.read_theme()
         theme_type = theme_str.split('.')[0]
@@ -203,25 +196,25 @@ class AppSettings:
         self.qt_settings.setValue("main/alpha", alpha)
 
     def read_alpha(self):
-        return self.qt_settings.value("main/alpha", 50)
+        return int(self.qt_settings.value("main/alpha", 50))
 
     def write_edges_alpha(self, alpha):
         self.qt_settings.setValue("main/alpha_edges", alpha)
 
     def read_edges_alpha(self):
-        return self.qt_settings.value("main/alpha_edges", 100)
+        return int(self.qt_settings.value("main/alpha_edges", 100))
 
     def write_fat_width(self, fat_width):
         self.qt_settings.setValue("main/fat_width", fat_width)
 
     def read_fat_width(self):
-        return self.qt_settings.value("main/fat_width", 50)
+        return int(self.qt_settings.value("main/fat_width", 50))
 
     def write_density(self, density):
         self.qt_settings.setValue("main/density", density)
 
     def read_density(self):
-        return self.qt_settings.value("main/density", 50)
+        return int(self.qt_settings.value("main/density", 50))
 
     def write_detector_model(self, model_name):
         self.qt_settings.setValue("detector/model_name", model_name)
@@ -245,7 +238,7 @@ class AppSettings:
         self.qt_settings.setValue("cnn/conf_thres", conf_thres)
 
     def read_conf_thres(self):
-        return self.qt_settings.value("cnn/conf_thres", 0.5)
+        return float(self.qt_settings.value("cnn/conf_thres", 0.5))
 
     def write_simplify_factor(self, simplify_factor):
         self.qt_settings.setValue("cnn/simplify_factor", simplify_factor)
@@ -257,7 +250,7 @@ class AppSettings:
         self.qt_settings.setValue("cnn/iou_thres", iou_thres)
 
     def read_iou_thres(self):
-        return self.qt_settings.value("cnn/iou_thres", 0.5)
+        return float(self.qt_settings.value("cnn/iou_thres", 0.5))
 
     def write_label_text_params(self, font, hide=False, auto_color=False,
                                 default_color=(255, 255, 255, 255)):

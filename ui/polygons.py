@@ -3,15 +3,13 @@ import math
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QPolygonF, QPen
+from shapely import Polygon
 
 from utils import config
-from utils import help_functions_light as hf
+from utils import help_functions as hf
 from utils.settings_handler import AppSettings
 
 settings = AppSettings()
-
-from shapely import Polygon
-
 
 def set_item_label(item, text=None, color=None):
     if not item.label:

@@ -4,8 +4,8 @@ import os
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPolygonF, QColor, QPen, QPainter, QPixmap, QFont, QCursor
-from PyQt5.QtWidgets import QAction, QMenu, QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMenu, QGraphicsSimpleTextItem, QAction
 from shapely import Polygon, Point
 
 from ui.polygons import GrPolygonLabel, GrEllipsLabel, ActiveHandler, AiPoint, FatPoint, RulerPoint, RulerLine, \
@@ -14,11 +14,10 @@ from ui.signals_and_slots import PolygonDeleteConnection, ViewMouseCoordsConnect
     PolygonEndDrawing, MaskEndDrawing, PolygonChangeClsNumConnection, LoadIdProgress, InfoConnection, \
     ListOfPolygonsConnection
 from utils import config
-from utils import help_functions_light as hf
+from utils import help_functions as hf
 from utils.ids_worker import IdsSetterWorker
-from utils.settings_handler import AppSettings
 from utils.labels_ids_handler import LabelsIds
-
+from utils.settings_handler import AppSettings
 from utils.states import ViewState, DrawState, DragState
 
 
