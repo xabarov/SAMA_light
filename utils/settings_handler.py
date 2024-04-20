@@ -15,16 +15,10 @@ shortcuts = {'change_polygon_label': {'appearance': 'Ctrl+E', 'modifier': ['Ctrl
                       'name_ru': 'Вырезать область', 'shortcut_key_eng': 73, 'shortcut_key_ru': 1064},
              'del': {'appearance': 'Delete', 'modifier': None, 'name_eng': 'Delete polygon',
                      'name_ru': 'Удаление полигона', 'shortcut_key_eng': 16777223, 'shortcut_key_ru': 16777223},
-             'detect_single': {'appearance': 'Ctrl+Y', 'modifier': ['Ctrl'], 'name_eng': 'Detect object by one pass',
-                               'name_ru': 'Обнаружить объекты за один проход', 'shortcut_key_eng': 89,
-                               'shortcut_key_ru': 1053},
              'end_drawing': {'appearance': 'Space', 'modifier': None, 'name_eng': 'Finish label drawing',
                              'name_ru': 'Закончить создание метки', 'shortcut_key_eng': 32, 'shortcut_key_ru': 32},
              'fit': {'appearance': 'Ctrl+F', 'modifier': ['Ctrl'], 'name_eng': 'Fit image size',
                      'name_ru': 'Подогнать под размер окна', 'shortcut_key_eng': 70, 'shortcut_key_ru': 1040},
-             'gd': {'appearance': 'Ctrl+G', 'modifier': ['Ctrl'], 'name_eng': 'Create labels by GroundingDINO+SAM',
-                    'name_ru': 'Создание полигонов с помощью GroundingDINO+SAM', 'shortcut_key_eng': 71,
-                    'shortcut_key_ru': 1055},
              'hand_move': {'appearance': 'Ctrl+Space', 'modifier': ['Ctrl'], 'name_eng': 'Hand navigator',
                            'name_ru': 'Перемещение рукой', 'shortcut_key_eng': 32, 'shortcut_key_ru': 32},
              'hide_labels': {'appearance': 'Ctrl+H', 'modifier': ['Ctrl'], 'name_eng': 'Hide/show labels',
@@ -71,12 +65,6 @@ class AppSettings:
         if not app_name:
             app_name = config.QT_SETTINGS_APP
         self.qt_settings = QSettings(config.QT_SETTINGS_COMPANY, app_name)
-
-    def read_clear_sam_size(self):
-        return int(self.qt_settings.value("sam/clear_sam_size", 80))
-
-    def write_clear_sam_size(self, size):
-        self.qt_settings.setValue("sam/clear_sam_size", size)
 
     def write_last_opened_path(self, path):
         self.qt_settings.setValue("general/last_opened_path", path)
@@ -158,40 +146,6 @@ class AppSettings:
             return os.path.join("icons/", theme_type)
         return icon_folder
 
-    def write_detector_platform(self, platform):
-        platform = 'cpu'
-        self.qt_settings.setValue("main/detector_platform", platform)
-
-    def read_detector_platform(self):
-        return 'cpu'
-
-    def write_sam_platform(self, platform):
-        platform = 'cpu'
-        self.qt_settings.setValue("main/sam_platform", platform)
-
-    def read_sam_platform(self):
-        return 'cpu'
-
-    def write_segmentation_platform(self, platform):
-        platform = 'cpu'
-        self.qt_settings.setValue("main/segmentation", platform)
-
-    def read_segmentation_platform(self):
-        return 'cpu'
-
-    def write_zero_shot_platform(self, platform):
-        """
-        Zero-Shot means Grounding DINO, or YOLO World
-        """
-        platform = 'cpu'
-        self.qt_settings.setValue("main/zero_shot_platform", platform)
-
-    def read_zero_shot_platform(self):
-        """
-        Zero-Shot means Grounding DINO, or YOLO World
-        """
-        return 'cpu'
-
     def write_alpha(self, alpha):
         self.qt_settings.setValue("main/alpha", alpha)
 
@@ -215,24 +169,6 @@ class AppSettings:
 
     def read_density(self):
         return int(self.qt_settings.value("main/density", 50))
-
-    def write_detector_model(self, model_name):
-        self.qt_settings.setValue("detector/model_name", model_name)
-
-    def read_detector_model(self):
-        return self.qt_settings.value("detector/model_name", 'YOLOv8')
-
-    def write_sam_model(self, model_name):
-        self.qt_settings.setValue("sam/model_name", model_name)
-
-    def read_sam_model(self):
-        return self.qt_settings.value("sam/model_name", 'SAM_HQ_VIT_H')
-
-    def write_seg_model(self, model_name):
-        self.qt_settings.setValue("seg/model_name", model_name)
-
-    def read_seg_model(self):
-        return self.qt_settings.value("seg/model_name", 'UperNetR101_AES')
 
     def write_conf_thres(self, conf_thres):
         self.qt_settings.setValue("cnn/conf_thres", conf_thres)

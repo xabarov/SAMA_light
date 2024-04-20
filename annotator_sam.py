@@ -10,8 +10,7 @@ from qt_material import apply_stylesheet
 import utils.help_functions as hf
 from ui.base_window import MainWindow
 from utils import config
-from utils import ml_config
-from utils.sam.fast_sam_worker import FastSAMWorker
+from utils.sam.fast_sam_worker import SAMWorker
 from utils.states import DrawState
 
 
@@ -23,7 +22,7 @@ class AnnotatorSAM(MainWindow):
 
         # SAM
         self.image_set = False
-        self.fast_sam_worker = None
+        self.sam_worker = None
         self.queue_to_fast_sam_worker = []
 
         self.view.mask_end_drawing.on_mask_end_drawing.connect(self.ai_mask_end_drawing)
@@ -34,8 +33,8 @@ class AnnotatorSAM(MainWindow):
         """
         Загрузка модели SAM
         """
-        self.fast_sam_worker = FastSAMWorker()
-        self.fast_sam_worker.finished.connect(self.on_image_set)
+        self.sam_worker = SAMWorker()
+        self.sam_worker.finished.connect(self.on_image_set)
         if self.tek_image_path:
             self.queue_image_to_sam(self.tek_image_path)
 
@@ -62,8 +61,8 @@ class AnnotatorSAM(MainWindow):
         self.view.remove_items_from_active_group()
 
         if len(input_box):
-            if self.image_set and not self.fast_sam_worker.isRunning():
-                shapes = self.fast_sam_worker.box(input_box)
+            if self.image_set and not self.sam_worker.isRunning():
+                shapes = self.sam_worker.box(input_box)
                 self.add_sam_shapes_to_view(shapes)
 
         self.view.end_drawing()
@@ -144,12 +143,12 @@ class AnnotatorSAM(MainWindow):
         """
         self.cv2_image = cv2.imread(image_name)
         self.image_set = False
-        self.fast_sam_worker.set_image(self.cv2_image)
+        self.sam_worker.set_image(self.cv2_image)
         self.queue_to_fast_sam_worker = []
         self.info_message(
             "Нейросеть SAM еще не готова. Подождите секунду..." if self.lang == 'RU' else "SAM is loading. Please "
                                                                                           "wait...")
-        self.fast_sam_worker.start()
+        self.sam_worker.start()
 
     def get_jpg_path(self, image_name):
         """
@@ -201,8 +200,6 @@ class AnnotatorSAM(MainWindow):
         label = self.project_data.get_label_name(cls_num)
         if label:
             color = self.project_data.get_label_color(label)
-        if not color:
-            color = ml_config.PALETTE[cls_num]
 
         cls_name = self.cls_combo.itemText(cls_num)
 
@@ -245,8 +242,8 @@ class AnnotatorSAM(MainWindow):
             input_point, input_label = self.view.get_sam_input_points_and_labels()
 
             if len(input_label):
-                if self.image_set and not self.fast_sam_worker.isRunning():
-                    shapes = self.fast_sam_worker.point(input_point, input_label)
+                if self.image_set and not self.sam_worker.isRunning():
+                    shapes = self.sam_worker.point(input_point, input_label)
                     self.add_sam_shapes_to_view(shapes)
 
             else:
@@ -270,9 +267,9 @@ class AnnotatorSAM(MainWindow):
 
         self.hide()  # Скрываем окно
 
-        if self.fast_sam_worker:
-            self.fast_sam_worker.running = False  # Изменяем флаг выполнения
-            self.fast_sam_worker.wait(5000)  # Даем время, чтобы закончить
+        if self.sam_worker:
+            self.sam_worker.running = False  # Изменяем флаг выполнения
+            self.sam_worker.wait(5000)  # Даем время, чтобы закончить
 
         self.is_asked_before_close = True
         self.close()
@@ -281,12 +278,12 @@ class AnnotatorSAM(MainWindow):
         """
         Постановка в очередь изображения для загрузки в модель SAM
         """
-        if not self.fast_sam_worker.isRunning():
-            self.fast_sam_worker.set_image(self.cv2_image)
+        if not self.sam_worker.isRunning():
+            self.sam_worker.set_image(self.cv2_image)
             self.info_message(
                 "Начинаю загружать изображение в нейросеть SAM..." if self.lang == 'RU' else "Start loading image to "
                                                                                              "SAM...")
-            self.fast_sam_worker.start()
+            self.sam_worker.start()
         else:
             self.queue_to_fast_sam_worker.append(image_name)
             if self.lang == 'RU':
