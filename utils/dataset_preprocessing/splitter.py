@@ -196,8 +196,6 @@ def train_test_val_splitter(images_path, train=80.0, val=20.0, test=None, sim_me
 
             return train_names, val_names, test_names
 
-        elif sim_method == "images":
-            pass
         else:
             print(f"Wrong similarity method {sim_method}")
 

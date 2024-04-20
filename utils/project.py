@@ -461,7 +461,7 @@ class ProjectHandler(QWidget):
 
         return images_dir, labels_dir
 
-    def export(self, export_dir, export_map=None, format='yolo_seg', variant_idx=0, splits=None, sim=0,
+    def export(self, export_dir, export_map=None, format='yolo_seg', variant_idx=0, splits=None, sim='random',
                is_filter_null=False, new_image_size=None):
 
         """

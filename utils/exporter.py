@@ -19,7 +19,7 @@ from utils.dataset_preprocessing.splitter import train_test_val_splitter
 class Exporter(QtCore.QThread):
 
     def __init__(self, project_data, export_dir, format='yolo_seg', export_map=None, dataset_name='dataset',
-                 variant_idx=0, splits=None, split_method='names', sim=0,
+                 variant_idx=0, splits=None, split_method='names', sim='random',
                  is_filter_null=False, new_image_size=None):
         """
         2 - Only Train
@@ -167,12 +167,12 @@ class Exporter(QtCore.QThread):
         if self.variant_idx == 0:
             train_names, val_names, test_names = train_test_val_splitter(self.data["path_to_images"], self.splits[0],
                                                                          self.splits[1],
-                                                                         self.splits[2], sim_method='random',
+                                                                         self.splits[2], sim_method=self.sim,
                                                                          percent_hook=self.emit_percent)
             return {"train": train_names, "val": val_names, "test": test_names}
         if self.variant_idx == 1:
             train_names, val_names = train_test_val_splitter(self.data["path_to_images"], self.splits[0],
-                                                             self.splits[1], sim_method='random',
+                                                             self.splits[1], sim_method=self.sim,
                                                              percent_hook=self.emit_percent)
 
             return {"train": train_names, "val": val_names}
@@ -489,7 +489,10 @@ class Exporter(QtCore.QThread):
                         new_img = cv2.resize(img, self.new_image_size)
                         cv2.imwrite(os.path.join(images_dir, split_folder, filename), new_img)
                     else:
-                        shutil.copy(fullname, os.path.join(images_dir, split_folder, filename))
+                        src = fullname
+                        dest = os.path.join(images_dir, split_folder, filename)
+                        if src != dest:
+                            shutil.copy(src, dest)
 
                 im_num += 1
                 self.export_percent_conn.percent.emit(int(100 * im_num / (len(self.data['images']))))

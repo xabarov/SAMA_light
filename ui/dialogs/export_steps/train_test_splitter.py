@@ -34,9 +34,9 @@ class TrainTestSplitter(QWidget):
         self.group_combo = StyledComboBox(theme=theme)
         if self.lang == 'RU':
             self.group_variants = np.array(
-                ["случайно", "по близости имен", "по близости изображений", "из JSON"])
+                ["случайно", "из JSON"])
         else:
-            self.group_variants = np.array(["random", "by names similarity", "by images similarity", "from JSON"])
+            self.group_variants = np.array(["random", "from JSON"])
 
         self.group_combo.addItems(self.group_variants)
         self.group_combo.currentIndexChanged.connect(self.on_group_combo_change)
@@ -107,13 +107,18 @@ class TrainTestSplitter(QWidget):
 
     def on_group_combo_change(self):
         print(f"Similarity {self.group_combo.currentText()}")
+        _, text_sim = self.get_idx_text_sim()
+        if 'JSON' in text_sim:
+            print('Split by JSON not implemented yet')
 
     def get_idx_text_variant(self):
         return self.variants_combo.currentIndex(), self.variants_combo.currentText()
 
     def get_idx_text_sim(self):
         """Idx and name of similarity"""
-        return self.group_combo.currentIndex(), self.group_combo.currentText()
+        en_texts = ["random", "from JSON"]
+        idx = self.group_combo.currentIndex()
+        return idx, en_texts[idx]
 
     def get_splits(self):
         idx = self.variants_combo.currentIndex()

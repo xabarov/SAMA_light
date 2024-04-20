@@ -961,7 +961,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.project_data.export_percent_conn.percent.connect(self.export_dialog.set_progress)
             self.project_data.export_finished.on_finished.connect(self.on_project_export)
             self.project_data.export(export_dir, export_map=export_map, format=export_format, variant_idx=idx,
-                                     splits=splits, sim=sim_idx, is_filter_null=is_filter_null,
+                                     splits=splits, sim=sim_text, is_filter_null=is_filter_null,
                                      new_image_size=new_image_size)
 
     def importFromYOLOBox(self):
