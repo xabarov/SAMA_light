@@ -1,23 +1,32 @@
 # SAMA Light Annotator
 
-Labeling Images for Object Detection and Instance Segmentation 
+Labeling Images for Object Detection and Instance Segmentation
 
 ![alt text](assets/demo.gif)
 
-
-## Install 
+## Install
 
 ### For light version without SAM run:
+
 1. `pip install -r requirements_light.txt`
 2. `python annotator_light.py`
 
 ### For version with SAM run:
+
 1. `pip install -r requirements_sam.txt`
 2. `python annotator_sam.py`
 
-#### FastSAM needs YOLOv8 FastSAM weight 'FastSAM-x.pt', so you have 2 options:
-1. Download weight manually from: https://disk.yandex.ru/d/47FN8Wh8dnoJpQ and put it to `sama_light` dir
-2. Or start `annotator_sam.py` and ultralytics downloads it for you automatically
+### SAM settings
+
+1. Set `SAM_WEIGHT_PATH`, `SAM_MODEL` and `SAM_PLATFORM` in `utils.ml_config.py`. By default SAMA Light use **FastSAM**
+   with 'FastSAM-x.pt' on 'cpu'
+2. Download weight manually and place it according `ml_config.py SAM_WEIGHT_PATH` variable or start `annotator_sam.py`
+   and [ultralytics](https://docs.ultralytics.com/models/fast-sam/) downloads it for you automatically. 
+3. Default path `FastSAM-x.pt` in config suggests that weights are
+   in ***sama_light/*** project folder. You can download it from:
+- [FastSAM](https://docs.ultralytics.com/models/fast-sam/)
+- [SAM](https://docs.ultralytics.com/models/fast-sam/)
+- [MobileSAM](https://docs.ultralytics.com/models/mobile-sam/)
 
 
 
