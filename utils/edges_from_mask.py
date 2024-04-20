@@ -478,7 +478,7 @@ def test_cv2():
             shapes.append(Polygon(coords))
 
 
-def mask_to_polygons_layer(mask, method='cv2', is_clear=True, min_size=80):
+def mask_to_polygons_layer(mask, method='rasterio', min_size=80):
     """
     Преобразует маску в набор полигонов Shapely Polygon
     mask - бинарное изображение- маска, numpy array
@@ -489,8 +489,6 @@ def mask_to_polygons_layer(mask, method='cv2', is_clear=True, min_size=80):
     is_clear - нужно ли очищать маски меньше, чем min_size пикелей
     """
     shapes = []
-    if is_clear:
-        mask = hf.clean_mask(mask, type='remove', min_size=min_size, connectivity=1)
     if method == 'rasterio':
         for shape, value in features.shapes(mask.astype(np.int16), mask=(mask > 0),
                                             transform=rasterio.Affine(1.0, 0, 0, 0, 1.0, 0)):

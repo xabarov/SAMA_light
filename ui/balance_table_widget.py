@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView, QWidget
 from qt_material import apply_stylesheet
 
 from utils.settings_handler import AppSettings
-
+import screeninfo
 
 class BalanceTable(QWidget):
 
@@ -63,9 +63,17 @@ class BalanceTable(QWidget):
             self.add_not_editable(f"{stat[lbl]['size']['std']:0.3f}", row, 4)
             row += 1
 
-        size, pos = self.settings.read_size_pos_settings()
-        self.setMinimumWidth(int(size.width() * width_percent))
-        self.setMinimumHeight(int(size.height() * height_percent))
+        monitors = screeninfo.get_monitors()
+        min_width = 1e12
+        min_height = 1e12
+        for m in monitors:
+            if m.width < min_width:
+                min_width = m.width
+            if m.height < min_height:
+                min_height = m.height
+
+        self.setMinimumWidth(int(min_width * width_percent))
+        self.setMinimumHeight(int(min_height * height_percent))
         self.layout.addWidget(self.table)
         self.setLayout(self.layout)
 

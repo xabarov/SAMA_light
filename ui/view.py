@@ -475,10 +475,10 @@ class GraphicsView(QtWidgets.QGraphicsView):
             id = self.labels_ids_handler.get_unique_label_id()
             self.last_added.append(id)
             self.add_polygon_to_scene(cls_num, points_mass, color=color, alpha=alpha, id=id, is_save_last=False,
-                                      text=text, alpha_edge=alpha_edge)
+                                      text=text, alpha_edge=alpha_edge, add_to_active_group=True)
 
     def add_polygon_to_scene(self, cls_num, point_mass, color=None, alpha=50, id=None,
-                             is_save_last=True, text=None, alpha_edge=None):
+                             is_save_last=True, text=None, alpha_edge=None, add_to_active_group=False):
         """
         Добавление полигона на сцену
         color - цвет. Если None - будет выбран цвет, соответствующий номеру класса из config.COLORS
@@ -509,7 +509,12 @@ class GraphicsView(QtWidgets.QGraphicsView):
 
         self.crop_by_pixmap_size(polygon_new)
 
-        self.scene().addItem(polygon_new)
+
+
+        if add_to_active_group:
+            self.add_item_to_scene_as_active(polygon_new)
+        else:
+            self.scene().addItem(polygon_new)
         if text:
             self.scene().addItem(polygon_new.get_label())
 
@@ -1362,7 +1367,6 @@ class GraphicsView(QtWidgets.QGraphicsView):
         #   - сохранить на сцену (они и так сохранятся, поскольку уже добавлены)
         #   - приписать текст
         #   - очистить active_group
-        self.draw_state = DrawState.no
         self.drag_state = DragState.no
         self.viewport().setCursor(QCursor(QtCore.Qt.ArrowCursor))
 
@@ -1474,6 +1478,7 @@ class GraphicsView(QtWidgets.QGraphicsView):
         self.remove_fat_point_from_scene()
 
         if self.draw_state == DrawState.ai_points:
+            self.draw_state = DrawState.no
             self.clear_ai_points()
 
         if len(self.active_group) != 0:

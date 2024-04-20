@@ -38,8 +38,13 @@ from utils.settings_handler import shortcuts as shortcuts_init
 from utils.states import DrawState, WindowState, ViewState
 from ui.balance_table_widget import BalanceTable
 
-
 basedir = os.path.dirname(__file__)
+
+if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -690,7 +695,7 @@ class MainWindow(QtWidgets.QMainWindow):
         theme = self.settings.read_theme()
         variants = [labels[i] for i in range(len(labels)) if i != cls_num]
 
-        if len(variants) < 2:
+        if len(variants) < 1:
             if self.lang == 'RU':
                 message = f"Добавьте еще один класс. Пока в списке только один класс {labels[cls_num]}"
             else:
