@@ -1,6 +1,6 @@
 # SAMA Light Annotator
 
-Labeling Images for Object Detection and Instance Segmentation
+Labeling Images for Object Detection, Instance Segmentation and Semantic Segmentation
 
 ![alt text](assets/demo.gif)
 
@@ -23,7 +23,7 @@ Labeling Images for Object Detection and Instance Segmentation
 2. Download weight manually and place it according `ml_config.py SAM_WEIGHT_PATH` variable or start `annotator_sam.py`
    and [ultralytics](https://docs.ultralytics.com/models/fast-sam/) downloads it for you automatically. 
 3. Default path `FastSAM-x.pt` in config suggests that weights are
-   in ***sama_light/*** project folder. You can download it from:
+   in ***sama_light/*** project folder. You can download weights from:
 - [FastSAM](https://docs.ultralytics.com/models/fast-sam/)
 - [SAM](https://docs.ultralytics.com/models/fast-sam/)
 - [MobileSAM](https://docs.ultralytics.com/models/mobile-sam/)
