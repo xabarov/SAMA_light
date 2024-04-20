@@ -9,6 +9,8 @@ __pycache__/
 # Torch checkpoints
 *.pt
 
+.idea
+
 # Distribution / packaging
 .Python
 build/
