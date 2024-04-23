@@ -2,6 +2,7 @@ from PySide2 import QtCore
 
 from utils.ml_config import SAM_MODEL, SAM_PLATFORM, SAM_WEIGHT_PATH
 from utils.sam.fast_sam_annotator import FastSAMCustom, SAMCustom
+from utils.sam.eff_sam_runner import EfficientSAM
 
 
 class SAMWorker(QtCore.QThread):
@@ -17,7 +18,6 @@ class SAMWorker(QtCore.QThread):
         self.bbox = []
 
         self.source = None
-        self.device = 'cpu'
         self.retina_mask = True
         self.imgsz = 1024
         self.conf = 0.4
@@ -31,12 +31,15 @@ class SAMWorker(QtCore.QThread):
             return FastSAMCustom(sam_weights)
         elif SAM_MODEL in ['SAM_large', 'SAM_base', 'MobileSAM']:
             return SAMCustom(sam_weights, device=SAM_PLATFORM)
+        elif SAM_MODEL == 'EfficientSAM_small':
+            return EfficientSAM(model='small', checkpoint=sam_weights, device=SAM_PLATFORM)
+        elif SAM_MODEL == 'EfficientSAM_tiny':
+            return EfficientSAM(model='tiny', checkpoint=sam_weights, device=SAM_PLATFORM)
 
         print('Wrong SAM model name')
 
-    def set_image(self, source, device='cpu', retina_masks=True, imgsz=1024, conf=0.4, iou=0.9):
+    def set_image(self, source, retina_masks=True, imgsz=1024, conf=0.4, iou=0.9):
         self.source = source
-        self.device = device
         self.retina_mask = retina_masks
         self.imgsz = imgsz
         self.conf = conf
@@ -66,9 +69,9 @@ class SAMWorker(QtCore.QThread):
 
         """
         if SAM_MODEL == 'FastSAM':
-            self.sam.prepare_prompt_process(self.source, device=self.device, retina_masks=self.retina_mask,
+            self.sam.prepare_prompt_process(self.source, device=SAM_PLATFORM, retina_masks=self.retina_mask,
                                             imgsz=self.imgsz, conf=self.conf,
                                             iou=self.iou)
 
-        elif SAM_MODEL in ['SAM_large', 'SAM_base', 'MobileSAM']:
+        elif SAM_MODEL in ['SAM_large', 'SAM_base', 'MobileSAM', 'EfficientSAM_small', 'EfficientSAM_tiny']:
             self.sam.set_image(self.source)
