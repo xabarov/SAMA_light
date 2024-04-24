@@ -155,7 +155,11 @@ class ShortCutsTable(QTableWidget):
             row = 0
             for k in shortcuts:
                 self.setItem(row, 0, QTableWidgetItem(k))
-                name_item = QTableWidgetItem(shortcuts[k]['name_ru'])
+                if lang == 'RU':
+                    name_item = QTableWidgetItem(shortcuts[k]['name_ru'])
+                else:
+                    name_item = QTableWidgetItem(shortcuts[k]['name_eng'])
+
                 name_item.setFlags(name_item.flags() & ~QtCore.Qt.ItemIsEditable)
                 self.setItem(row, 1, name_item)
                 appearance_item = QTableWidgetItem(shortcuts[k]['appearance'])

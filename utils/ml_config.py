@@ -13,6 +13,6 @@ SAM_WEIGHT_PATH = {
     'SAM_HQ_TINY': 'weights/sam_hq_vit_tiny.pth'
 }
 
-SAM_MODEL = 'SAM_HQ_H'  # 'EfficientSAM_small'
+SAM_MODEL = 'FastSAM'  # 'EfficientSAM_small'
 
-SAM_PLATFORM = 'cuda'  # 'cuda'
+SAM_PLATFORM = 'cpu'  # 'cuda'

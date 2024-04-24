@@ -11,6 +11,5 @@ qt-material==2.14
 rasterio==1.3.10
 screeninfo==0.8.1
 shapely==2.0.4
-shiboken2==5.15.2.1
 tqdm==4.66.2
 ujson==5.9.0
