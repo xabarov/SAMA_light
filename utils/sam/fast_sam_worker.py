@@ -3,6 +3,7 @@ from PySide2 import QtCore
 from utils.ml_config import SAM_MODEL, SAM_PLATFORM, SAM_WEIGHT_PATH
 from utils.sam.fast_sam_annotator import FastSAMCustom, SAMCustom
 from utils.sam.eff_sam_runner import EfficientSAM
+from utils.sam.sam_hq_runner import SAM_HQ
 
 
 class SAMWorker(QtCore.QThread):
@@ -35,6 +36,17 @@ class SAMWorker(QtCore.QThread):
             return EfficientSAM(model='small', checkpoint=sam_weights, device=SAM_PLATFORM)
         elif SAM_MODEL == 'EfficientSAM_tiny':
             return EfficientSAM(model='tiny', checkpoint=sam_weights, device=SAM_PLATFORM)
+        elif 'SAM_HQ' in SAM_MODEL:
+            if SAM_MODEL == 'SAM_HQ_B':
+                model = 'vit_b'
+            elif SAM_MODEL == 'SAM_HQ_L':
+                model = 'vit_l'
+            elif SAM_MODEL == 'SAM_HQ_H':
+                model = 'vit_h'
+            else:
+                model = 'vit_tiny'
+
+            return SAM_HQ(model=model, checkpoint=sam_weights, device=SAM_PLATFORM)
 
         print('Wrong SAM model name')
 
@@ -73,5 +85,6 @@ class SAMWorker(QtCore.QThread):
                                             imgsz=self.imgsz, conf=self.conf,
                                             iou=self.iou)
 
-        elif SAM_MODEL in ['SAM_large', 'SAM_base', 'MobileSAM', 'EfficientSAM_small', 'EfficientSAM_tiny']:
+        elif SAM_MODEL in ['SAM_large', 'SAM_base', 'MobileSAM', 'EfficientSAM_small',
+                           'EfficientSAM_tiny'] or 'SAM_HQ' in SAM_MODEL:
             self.sam.set_image(self.source)

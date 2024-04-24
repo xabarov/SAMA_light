@@ -29,6 +29,7 @@ Labeling Images for Object Detection, Instance Segmentation and Semantic Segment
 - [SAM](https://docs.ultralytics.com/models/fast-sam/)
 - [MobileSAM](https://docs.ultralytics.com/models/mobile-sam/)
 - [EfficientSAM](https://github.com/yformer/EfficientSAM/tree/main)
+- [SAM_HQ](https://github.com/SysCV/sam-hq)
 
 
 

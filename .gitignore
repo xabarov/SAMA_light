@@ -8,6 +8,8 @@ __pycache__/
 
 # Torch checkpoints
 *.pt
+*.pth
+weights/*
 
 .idea
 
