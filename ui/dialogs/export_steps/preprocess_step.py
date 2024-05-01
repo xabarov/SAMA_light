@@ -93,6 +93,7 @@ class PreprocessStep(CardsField):
                 self.option_parameters["resize"] = {}
                 self.num_of_options += 1
 
+
     def add_resize_card(self):
         self.resize_card = ResizeCard(test_image_path=self.test_image_path, on_ok=self.get_resize_options,
                                       on_delete=self.delete_resize)
@@ -169,7 +170,7 @@ if __name__ == '__main__':
     apply_stylesheet(app, theme='dark_blue.xml')
     labels = ['F-16', 'F-35', 'C-130', 'C-17']
 
-    slider = PreprocessStep(labels)
+    slider = PreprocessStep(labels, 'test_image.jpg')
     slider.show()
 
     app.exec_()

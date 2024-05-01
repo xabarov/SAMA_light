@@ -1,8 +1,8 @@
 import os
 
-from PIL import Image, ImageQt
+from PIL import Image
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QCheckBox, QFormLayout
 
 from ui.custom_widgets.card import Card
@@ -95,7 +95,7 @@ class ResizeStep(PreprocessBlock):
 
         self.img = Image.open(test_image_path)
         self.img_width, self.img_height = self.img.size
-        self.img = ImageQt.ImageQt(self.img)
+        self.img = QImage(test_image_path)
 
         scale = 1.0 * self.img_width / thumbnail_size
         self.thumbnail_size = thumbnail_size

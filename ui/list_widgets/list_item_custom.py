@@ -5,7 +5,11 @@ from PyQt5.QtWidgets import QListWidgetItem
 
 
 class ListWidgetItemCustomSort(QListWidgetItem):
-    def __init__(self, parent):
+    def __init__(self, parent, sort='natural'):
+        """
+        sort - if not 'natural' - old version of sorting algorythm will be implemented
+        """
+        self.sort = sort
         super().__init__(parent)
 
     def get_first_name_part(self, t, delimiter='.'):
@@ -50,7 +54,20 @@ class ListWidgetItemCustomSort(QListWidgetItem):
 
         return s
 
+    def natural_sort(self, other):
+
+        # natural_sorted_list = natsorted([self.text(), other.text()], key=lambda y: y.lower())
+        convert = lambda text: int(text) if text.isdigit() else text.lower()
+        alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+        natural_sorted_list = sorted([self.text(), other.text()], key=alphanum_key)
+
+        if natural_sorted_list[0] == self.text():
+            return True
+        return False
+
     def __lt__(self, other):
+        if self.sort == 'natural':
+            return self.natural_sort(other)
         try:
             txt_self = self.get_first_name_part(self.text())
             txt_other = self.get_first_name_part(other.text())
@@ -69,3 +86,7 @@ class ListWidgetItemCustomSort(QListWidgetItem):
 
         except:
             return QListWidgetItem.__lt__(self, other)
+
+
+if __name__ == '__main__':
+    pass

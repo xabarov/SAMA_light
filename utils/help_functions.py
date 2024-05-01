@@ -1,4 +1,5 @@
 import datetime
+import json
 import math
 import os
 import shutil
@@ -13,8 +14,12 @@ from PyQt5.QtGui import QPolygonF
 from rasterio import features
 from shapely import Polygon, unary_union
 
+from colorama import init
+from colorama import Fore, Back, Style
+
 from utils import config
 from utils import coords_calc
+import copy
 
 
 def is_im_path(im_path, suffixes=['jpg', 'tiff', 'png', 'jpeg', 'tif']):
@@ -136,7 +141,6 @@ def create_unique_image_name(image_name):
         new_name += splitted_name[i]
 
     return f'{new_name} {datetime.datetime.now().microsecond}.{splitted_name[-1]}'
-
 
 
 def convert_item_polygon_to_shapely(pol):
@@ -466,7 +470,6 @@ def create_random_color(alpha):
     return rgba
 
 
-
 def calc_ellips_point_coords(ellipse_rect, angle):
     tl = ellipse_rect.topLeft()
     br = ellipse_rect.bottomRight()
@@ -609,7 +612,228 @@ def calc_area_by_points(points, lrm):
     return pol.area * lrm * lrm
 
 
+def tile_image(image_path, width, height, overlap_percent=50, verbose=False):
+    """
+    Разбивает изображение на тайлы и возвращает список тайлов в виде List(np.array)
+    с размером каждого тайла (height, width, 3)
 
+    Если тайл попадает на граничную область изображения, то фрагмент центрируется,
+    оставшаяся область заполняется 0-ми (т.е. черным цветом)
+
+    Для проверки есть функция `def test_tile_image()` ниже
+    """
+    # Load the image
+    img = cv2.imread(image_path)
+
+    # Calculate the number of tiles in each dimension
+    num_tiles_width = int(np.ceil(img.shape[1] * 100.0 / (width * (100 - overlap_percent))))
+    num_tiles_height = int(np.ceil(img.shape[0] * 100.0 / (height * (100 - overlap_percent))))
+
+    # Create an empty array to store the tiles
+    tiles = []
+
+    if verbose:
+        print(Fore.GREEN +
+              "Split " + Fore.CYAN + f"<{os.path.basename(image_path)}>" + Fore.GREEN + " into " + Fore.YELLOW + f"{num_tiles_width}x{num_tiles_height}" + Fore.GREEN + " tiles")
+        print(Style.RESET_ALL)
+
+    # Loop over each tile
+    for i in range(num_tiles_height):
+        for j in range(num_tiles_width):
+            # Calculate the start and end points of this tile
+            start_x = int(j * width * (100 - overlap_percent) / 100)
+            end_x = min(start_x + width, img.shape[1])
+            start_y = int(i * height * (100 - overlap_percent) / 100)
+            end_y = min(start_y + height, img.shape[0])
+
+            tile = np.zeros((height, width, 3), dtype=np.uint8)
+
+            y1 = max(0, start_y)
+            y2 = min(img.shape[0], end_y)
+
+            x1 = max(0, start_x)
+            x2 = min(img.shape[1], end_x)
+
+            padding_y = int((height - (y2 - y1)) / 2)
+            padding_x = int((width - (x2 - x1)) / 2)
+
+            tile[0 + padding_y:y2 - y1 + padding_y, 0 + padding_x: x2 - x1 + padding_x] = img[y1:y2, x1:x2]
+            tiles.append(tile)
+
+    return tiles
+
+
+def calc_ratio_of_intersection(shape, start_x, end_x, start_y, end_y):
+    pol = Polygon(shape['points'])
+    box = []
+    box.append([start_x, start_y])
+    box.append([end_x, start_y])
+    box.append([end_x, end_y])
+    box.append([start_x, end_y])
+
+    box = Polygon(box)
+    cropped_polygon = box.intersection(pol)
+
+    area = 0
+    if cropped_polygon.geom_type == 'MultiPolygon':
+        polygons = list(cropped_polygon.geoms)
+        for polygon in polygons:
+            area += polygon.area
+    else:
+        area = cropped_polygon.area
+
+    return area / pol.area
+
+
+def crop_shape_by_box(shape, start_x, end_x, start_y, end_y):
+    shape_new = {'cls_num': shape['cls_num'], 'id': shape['id'], 'points': []}
+
+    for point in shape['points']:
+        x = point[0]
+        y = point[1]
+        shape_new['points'].append([max(start_x, min(end_x, x)), max(start_y, min(end_y, y))])
+
+    return shape_new
+
+
+def shift_shape(shape, start_x, start_y):
+    shape_new = {'cls_num': shape['cls_num'], 'id': shape['id'], 'points': []}
+
+    for point in shape['points']:
+        x = point[0]
+        y = point[1]
+        shape_new['points'].append([x - start_x, y - start_y])
+
+    return shape_new
+
+
+def tile_image_with_shapes(image_path, width, height, shapes, min_area_ratio=0.5, overlap_percent=50, verbose=False):
+    """
+    1. Разбивает изображение на тайлы
+    2. Проверяет, какие из shapes попадают в тайл с площадью > min_area_ration * shape.area
+    3. Возвращает кортеж из двух списков
+        а)  список тайлов в виде List(np.array)
+            с размером каждого тайла (height, width, 3)
+        б) список shapes для тайла, попавших в него
+
+    Если тайл попадает на граничную область изображения, то фрагмент центрируется,
+    оставшаяся область заполняется 0-ми (т.е. черным цветом)
+
+    Для проверки есть функция `def test_tile_image()` ниже
+    """
+    # Load the image
+    img = cv2.imread(image_path)
+
+    # Calculate the number of tiles in each dimension
+    num_tiles_width = int(np.ceil(img.shape[1] * 100.0 / (width * (100 - overlap_percent))))
+    num_tiles_height = int(np.ceil(img.shape[0] * 100.0 / (height * (100 - overlap_percent))))
+
+    # Create an empty array to store the tiles
+    tiles = []
+    tiles_shapes = []
+
+    if verbose:
+        print(Fore.GREEN +
+              "Split " + Fore.CYAN + f"<{os.path.basename(image_path)}>" + Fore.GREEN + " into " + Fore.YELLOW + f"{num_tiles_width}x{num_tiles_height}" + Fore.GREEN + " tiles")
+        print(Style.RESET_ALL)
+
+    # Loop over each tile
+    for i in range(num_tiles_height):
+        for j in range(num_tiles_width):
+            tile_shapes = []
+            # Calculate the start and end points of this tile
+            start_x = int(j * width * (100 - overlap_percent) / 100)
+            end_x = min(start_x + width, img.shape[1])
+            start_y = int(i * height * (100 - overlap_percent) / 100)
+            end_y = min(start_y + height, img.shape[0])
+
+            y1 = max(0, start_y)
+            y2 = min(img.shape[0], end_y)
+
+            x1 = max(0, start_x)
+            x2 = min(img.shape[1], end_x)
+
+            padding_y = int((height - (y2 - y1)) / 2)
+            padding_x = int((width - (x2 - x1)) / 2)
+
+            for shape in shapes:
+                ratio_of_intersection = calc_ratio_of_intersection(shape, start_x, end_x, start_y, end_y)
+                if ratio_of_intersection > min_area_ratio:
+                    shape_new = crop_shape_by_box(shape, start_x, end_x, start_y, end_y)
+                    shape_new = shift_shape(shape_new, start_x - padding_x, start_y - padding_y)
+                    tile_shapes.append(shape_new)
+
+            if len(tile_shapes) != 0:  # пустые тайлы не сохранять
+                tiles_shapes.append(tile_shapes)
+                tile = np.zeros((height, width, 3), dtype=np.uint8)
+
+                tile[0 + padding_y:y2 - y1 + padding_y, 0 + padding_x: x2 - x1 + padding_x] = img[y1:y2, x1:x2]
+                tiles.append(tile)
+
+    return tiles, tiles_shapes
+
+
+def test_tile_image():
+    image_path = "test_image.jpg"
+    width = 400
+    height = 400
+    overlap_percent = 30
+
+    tiles = tile_image(image_path, width, height, overlap_percent, verbose=True)
+
+    for i in [0, len(tiles) - 1]:
+        save_cv_numpy_as_image(tiles[i], f'tile_example_{i}.jpg')
+
+
+def save_cv_numpy_as_image(cv_numpy, image_full_path):
+    data = np.array(cv_numpy)
+    red, green, blue = data.T
+    data = np.array([blue, green, red])
+    data = data.transpose()
+    image = Image.fromarray(data)
+    image.save(image_full_path)
+
+
+def split_project(project_json_data, split_project_save_path, width, height, min_area_ratio=0.5, overlap_percent=50,
+                  verbose=False):
+    if not os.path.exists(split_project_save_path):
+        os.makedirs(split_project_save_path)
+
+    images = {}
+    for image_name, image_data in project_json_data['images'].items():
+
+        ext = coords_calc.get_ext(image_name)
+
+        path_to_image = os.path.join(project_json_data['path_to_images'], image_name)
+        shapes = image_data['shapes']
+        lrm = image_data['lrm']
+        last_user = image_data['last_user']
+        status = image_data['status']
+
+        tiles, tiles_shapes = tile_image_with_shapes(path_to_image, width, height, shapes, min_area_ratio,
+                                                     overlap_percent, verbose)
+
+        for i, (tile, shapes_new) in enumerate(zip(tiles, tiles_shapes)):
+            tile_name = f'{image_name.split("." + ext)[0]}_{i}.{ext}'
+            save_cv_numpy_as_image(tile, os.path.join(split_project_save_path, tile_name))
+            images[tile_name] = {'shapes': shapes_new, 'lrm': lrm, 'status': status, 'last_user': last_user}
+
+    split_project_data = {'path_to_images': split_project_save_path, 'images': images,
+                          'labels': copy.deepcopy(project_json_data['labels']),
+                          'labels_color': copy.deepcopy(project_json_data['labels_color'])}
+
+    with open(os.path.join(split_project_save_path, 'project.json'), 'w') as f:
+        json.dump(split_project_data, f)
+
+
+def test_split_project():
+    width = 800
+    height = 600
+    overlap_percent = 0
+    min_area_ratio = 0.5
+    with open('test_project.json', 'r') as f:
+        data = json.load(f)
+        split_project(data, 'split_project', width, height, min_area_ratio, overlap_percent, True)
 
 
 if __name__ == '__main__':
@@ -621,6 +845,4 @@ if __name__ == '__main__':
     #     cv2.imshow(f'frag {i}', part)
     #     cv2.waitKey(0)
 
-    points = [[100, 121], [200, 345], [0, 346]]
-
-    print(filter_edged_points(points))
+    test_split_project()

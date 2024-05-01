@@ -28,7 +28,7 @@ class ImagesWidget(QListWidget):
             'approve' - завершена работа
         """
 
-        item = ListWidgetItemCustomSort(text)
+        item = ListWidgetItemCustomSort(text, sort='natural')
         if not status:
             status = 'empty'
         item.setIcon(self.icons[status])

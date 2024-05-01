@@ -1,6 +1,7 @@
 import os
 import shutil
 import sys
+import time
 
 import cv2
 import numpy as np
@@ -1507,7 +1508,9 @@ class MainWindow(QtWidgets.QMainWindow):
             percent = int(100 * (i + 1) / len(image_names))
             self.progress_toolbar.set_percent(percent)
             self.images_list_widget.addItem(name, status)
+        start = time.process_time()
         self.images_list_widget.sortItems()
+        print(f'Sort time {time.process_time() - start:0.3f} sec')
         self.progress_toolbar.hide_progressbar()
 
     def progress_bar_changed(self, percent):

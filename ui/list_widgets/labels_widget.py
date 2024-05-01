@@ -9,7 +9,7 @@ class LabelsWidget(QListWidget):
         super(LabelsWidget, self).__init__(parent)
 
     def addItem(self, text, status=None) -> None:
-        item = ListWidgetItemCustomSort(text)
+        item = ListWidgetItemCustomSort(text, sort='natural')
         super().addItem(item)
 
 
