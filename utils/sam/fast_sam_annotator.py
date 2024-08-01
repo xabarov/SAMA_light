@@ -1,6 +1,6 @@
 import os
 
-from ultralytics import FastSAM
+from ultralytics import FastSAM, SAM
 from ultralytics.models.sam import Predictor as SAMPredictor
 from ultralytics.models.sam.predict import DEFAULT_CFG
 from utils.sam.fast_sam_prompt import FastSAMPrompt
@@ -57,7 +57,10 @@ class FastSAMCustom:
         """
 
         # Create a FastSAM model
-        self.model = FastSAM(sam_weights)
+        if 'Fast' in sam_weights:
+            self.model = FastSAM(sam_weights)
+        else:
+            self.model = SAM(sam_weights)
 
     def prepare_prompt_process(self, source, device='cpu', retina_masks=True, imgsz=1024, conf=0.4, iou=0.9):
         # Run inference on an image
